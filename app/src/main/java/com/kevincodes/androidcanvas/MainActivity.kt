@@ -1,15 +1,15 @@
 package com.kevincodes.androidcanvas
 
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.Rect
+import android.R.attr
+import android.graphics.*
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import androidx.core.content.res.ResourcesCompat
 import com.kevincodes.androidcanvas.databinding.ActivityMainBinding
 import timber.log.Timber
+import android.R.attr.width
+import android.os.Build
 
 
 class MainActivity : AppCompatActivity() {
@@ -28,6 +28,7 @@ class MainActivity : AppCompatActivity() {
     private var mFirstDrawnBackgroundColor = 0
     private var mRectFillColor = 0
     private var mWhiteColor = 0
+    private var mChocolateColor = 0
 
     private lateinit var binding: ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,10 +42,75 @@ class MainActivity : AppCompatActivity() {
         mFirstDrawnBackgroundColor = ResourcesCompat.getColor(resources, R.color.purple_500, null)
         mRectFillColor = ResourcesCompat.getColor(resources, R.color.purple_700, null)
         mWhiteColor = ResourcesCompat.getColor(resources, R.color.white, null)
+        mChocolateColor = ResourcesCompat.getColor(resources, R.color.chocolate, null)
         // assign colors
         mDefaultPainter.color = mFirstDrawnBackgroundColor
         mUnderlinedTextPainter.color = mWhiteColor
         mUnderlinedTextPainter.textSize = 70f
+    }
+
+    fun drawADonut(mView: View) {
+        val vWidth = mView.width
+        val vHeight = mView.height
+        mBitmapOnImageView = Bitmap.createBitmap(vWidth, vHeight, Bitmap.Config.ARGB_8888)
+        binding.myImageview.setImageBitmap(mBitmapOnImageView)
+        mCanvas = Canvas(mBitmapOnImageView)
+        val basePaint = Paint().apply {
+            color = 0xffc6853b.toInt() // light brown color
+            isAntiAlias = true
+        }
+
+        // Create a rect that references the size of the imageView
+        val mViewBounds = Rect(mView.left, mView.top, mView.right, mView.bottom)
+        val halfWidth = mViewBounds.width() / 2
+        val halfHeight = mViewBounds.height() / 2
+
+        // Save current state of the canvas
+        // Will ensure that clipping, rotating doesn't stop future
+        // drawings over the canvas
+        mCanvas.save()
+
+        // Draw the hole inside the donut first
+        val holeCircularPath = Path()
+        holeCircularPath.addCircle(
+            halfWidth.toFloat(),
+            halfHeight.toFloat(),
+            mViewBounds.width() / 8.0f,
+            Path.Direction.CCW
+        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            mCanvas.clipOutPath(holeCircularPath)
+        } else {
+            mCanvas.clipPath(holeCircularPath, Region.Op.DIFFERENCE)
+        }
+
+        // The top layer of the donut with the light brown color
+        mCanvas.drawCircle(
+            halfWidth.toFloat(),
+            halfHeight.toFloat(),
+            vWidth.toFloat() / 4f,
+            basePaint
+        )
+
+        // Initiate an icing paint & path effect
+        val icingPaint = Paint().apply {
+            color = mChocolateColor
+            pathEffect = ComposePathEffect(
+                CornerPathEffect(40f),
+                DiscretePathEffect(60f, 25f)
+            )
+        }
+        // Draw the icing circle with the path effects
+        mCanvas.drawCircle(
+            halfWidth.toFloat(),
+            halfHeight.toFloat(),
+            vWidth.toFloat() / 4.2f,
+            icingPaint
+        )
+
+        // Restore the state of the canvas before clipping
+        mCanvas.restore()
+
     }
 
     /**
@@ -60,7 +126,7 @@ class MainActivity : AppCompatActivity() {
      * incremented by 1, then [View.invalidate] is called to make these changes visible
      * inside this [Bitmap]
      * */
-    fun respondToImageViewClick(view: View) {
+    fun drawRectAndCenteredCircle(view: View) {
         val vWidth = view.width
         val vHeight = view.height
         val halfWidth = vWidth / 2
