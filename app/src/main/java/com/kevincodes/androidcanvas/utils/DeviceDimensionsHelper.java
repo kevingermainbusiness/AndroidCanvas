@@ -1,4 +1,4 @@
-package com.kevincodes.androidcanvas;
+package com.kevincodes.androidcanvas.utils;
 
 import android.content.Context;
 import android.content.res.Resources;

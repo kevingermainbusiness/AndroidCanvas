@@ -1,4 +1,4 @@
-package com.kevincodes.androidcanvas
+package com.kevincodes.androidcanvas.customViews
 
 import android.content.Context
 import android.graphics.*
