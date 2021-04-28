@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity() {
         mUnderlinedTextPainter.textSize = 70f
     }
 
-    fun drawSomething(view: View) {
+    fun respondToImageViewClick(view: View) {
         val vWidth = view.width
         val vHeight = view.height
         val halfWidth = vWidth / 2
